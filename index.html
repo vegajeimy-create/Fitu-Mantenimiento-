@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FITU - Reporte de Campo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { -webkit-tap-highlight-color: transparent; }
+        #signature-pad { touch-action: none; background-color: #f8fafc; cursor: crosshair; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen pb-24 font-sans">
+
+    <!-- Header -->
+    <header class="bg-blue-900 text-white p-6 shadow-lg">
+        <h1 class="text-2xl font-black italic tracking-tighter">FITU <span class="text-blue-400 font-light not-italic">TECNICO</span></h1>
+        <p class="text-xs opacity-70 mt-1">SISTEMA DE REPORTES EN VIVO</p>
+    </header>
+
+    <main class="max-w-md mx-auto p-4 space-y-4">
+        
+        <!-- Datos -->
+        <section class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200">
+            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2">Información General</label>
+            <input type="text" id="tech" placeholder="Tu Nombre (Técnico)" class="w-full bg-slate-50 p-4 rounded-xl mb-3 outline-none border border-slate-100 focus:border-blue-500">
+            <input type="text" id="client" placeholder="ID Cliente o Empresa" class="w-full bg-slate-50 p-4 rounded-xl outline-none border border-slate-100 focus:border-blue-500">
+        </section>
+
+        <!-- Labores -->
+        <section class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200">
+            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2">Trabajo Realizado</label>
+            <textarea id="desc" rows="4" placeholder="Detalla las labores realizadas..." class="w-full bg-slate-50 p-4 rounded-xl outline-none border border-slate-100 focus:border-blue-500"></textarea>
+        </section>
+
+        <!-- Firma -->
+        <section class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200 text-center">
+            <div class="flex justify-between items-center mb-2">
+                <label class="text-[10px] font-bold text-slate-400 uppercase">Firma del Cliente</label>
+                <button onclick="clearPad()" class="text-[10px] text-red-400 font-bold uppercase">Limpiar</button>
+            </div>
+            <canvas id="signature-pad" class="w-full h-40 rounded-2xl border-2 border-dashed border-slate-200"></canvas>
+            <input type="text" id="signer" placeholder="Nombre de quien recibe" class="w-full mt-3 bg-slate-50 p-4 rounded-xl outline-none border border-slate-100 focus:border-blue-500 text-center">
+        </section>
+
+        <!-- Correo Cliente -->
+        <section class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200">
+            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2">Enviar copia al Cliente</label>
+            <input type="email" id="c-email" placeholder="correo@cliente.com" class="w-full bg-slate-50 p-4 rounded-xl outline-none border border-slate-100 focus:border-blue-500">
+        </section>
+
+    </main>
+
+    <!-- Botón de Envío -->
+    <div class="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-slate-100">
+        <button onclick="sendReport()" class="w-full bg-blue-600 text-white font-black py-5 rounded-2xl shadow-xl active:bg-blue-700 transition-colors">
+            FINALIZAR Y ENVIAR
+        </button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('signature-pad');
+        const ctx = canvas.getContext('2d');
+        let drawing = false;
+
+        function resize() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = '#1e3a8a';
+        }
+        window.onresize = resize;
+        resize();
+
+        const getPos = (e) => {
+            const r = canvas.getBoundingClientRect();
+            return {
+                x: (e.touches ? e.touches[0].clientX : e.clientX) - r.left,
+                y: (e.touches ? e.touches[0].clientY : e.clientY) - r.top
+            };
+        };
+
+        canvas.addEventListener('touchstart', (e) => { drawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); e.preventDefault(); });
+        canvas.addEventListener('touchmove', (e) => { if(!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); });
+        window.addEventListener('touchend', () => drawing = false);
+
+        function clearPad() { ctx.clearRect(0,0,canvas.width,canvas.height); }
+
+        function sendReport() {
+            const tech = document.getElementById('tech').value;
+            const client = document.getElementById('client').value;
+            const desc = document.getElementById('desc').value;
+            const cEmail = document.getElementById('c-email').value;
+            const signer = document.getElementById('signer').value;
+
+            if(!tech || !client || !cEmail) {
+                alert("Complete los campos obligatorios");
+                return;
+            }
+
+            const subject = encodeURIComponent(`Reporte de Servicio FITU - ${client}`);
+            const adminEmail = "servicioscr@fitu.fit";
+            
+            const body = encodeURIComponent(
+                `REPORTE DE SERVICIO FITU\n` +
+                `--------------------------\n` +
+                `Técnico: ${tech}\n` +
+                `Cliente: ${client}\n` +
+                `Fecha: ${new Date().toLocaleDateString()}\n\n` +
+                `LABORES REALIZADAS:\n${desc}\n\n` +
+                `RECIBIDO POR: ${signer}\n` +
+                `--------------------------\n` +
+                `Este es un comprobante digital de FITU.`
+            );
+
+            // Esto abre la aplicación de correo del celular con los datos listos
+            window.location.href = `mailto:${cEmail}?cc=${adminEmail}&subject=${subject}&body=${body}`;
+        }
+    </script>
+</body>
+</html>
