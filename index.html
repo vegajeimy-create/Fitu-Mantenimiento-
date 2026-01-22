@@ -3,119 +3,284 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FITU - Reporte de Campo</title>
+    <title>FITU - Reporte Técnico</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        body { -webkit-tap-highlight-color: transparent; }
-        #signature-pad { touch-action: none; background-color: #f8fafc; cursor: crosshair; }
+        body { -webkit-tap-highlight-color: transparent; background-color: #f8fafc; }
+        
+        .fitu-card { @apply bg-white rounded-[2.5rem] shadow-sm border border-slate-200 p-6; }
+        
+        #modal-success {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(26, 46, 90, 0.98);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .bounce-in { animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        #signature-pad { touch-action: none; background: #f8fafc; cursor: crosshair; }
+        .photo-preview { aspect-ratio: 1/1; object-fit: cover; border-radius: 1.5rem; }
+        
+        textarea { resize: none; }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen pb-24 font-sans">
+<body class="min-h-screen pb-40 font-sans text-slate-900">
+
+    <!-- Modal de Éxito -->
+    <div id="modal-success">
+        <div class="bg-white p-10 rounded-[3.5rem] text-center shadow-2xl bounce-in max-w-xs w-full mx-4">
+            <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i data-lucide="check-circle" class="w-14 h-14 text-green-500"></i>
+            </div>
+            <h3 class="text-2xl font-black text-[#1a2e5a]">¡LISTO!</h3>
+            <p class="text-slate-500 mt-2 font-medium">Reporte guardado con éxito.</p>
+            <button onclick="closeModal()" class="mt-8 w-full bg-[#1a2e5a] text-white py-4 rounded-2xl font-bold active:scale-95 transition-transform">
+                Aceptar
+            </button>
+        </div>
+    </div>
 
     <!-- Header -->
-    <header class="bg-blue-900 text-white p-6 shadow-lg">
-        <h1 class="text-2xl font-black italic tracking-tighter">FITU <span class="text-blue-400 font-light not-italic">TECNICO</span></h1>
-        <p class="text-xs opacity-70 mt-1">SISTEMA DE REPORTES EN VIVO</p>
+    <header class="bg-[#1a2e5a] text-white p-8 sticky top-0 z-40 shadow-xl rounded-b-[3rem]">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <i data-lucide="shield-check" class="w-8 h-8 text-blue-400"></i>
+                <div>
+                    <h1 class="text-3xl font-black italic tracking-tighter">FITU</h1>
+                    <p class="text-[9px] uppercase tracking-[0.3em] font-bold text-blue-300">Technical Service</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <span class="text-[10px] font-bold opacity-50 uppercase block">Fecha</span>
+                <span class="text-sm font-black" id="current-date">--/--/----</span>
+            </div>
+        </div>
     </header>
 
-    <main class="max-w-md mx-auto p-4 space-y-4">
+    <main class="max-w-md mx-auto p-5 space-y-8 mt-4">
         
-        <!-- Datos -->
-        <section class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200">
-            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2">Información General</label>
-            <input type="text" id="tech" placeholder="Tu Nombre (Técnico)" class="w-full bg-slate-50 p-4 rounded-xl mb-3 outline-none border border-slate-100 focus:border-blue-500">
-            <input type="text" id="client" placeholder="ID Cliente o Empresa" class="w-full bg-slate-50 p-4 rounded-xl outline-none border border-slate-100 focus:border-blue-500">
+        <!-- Identificación -->
+        <section class="fitu-card space-y-4">
+            <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                <i data-lucide="user" class="w-3 h-3"></i> Información Base
+            </h2>
+            <input type="text" id="tech" placeholder="Nombre del Técnico" class="w-full bg-slate-50 p-4 rounded-2xl outline-none border border-slate-100 focus:border-blue-500 transition-all">
+            <input type="text" id="client" placeholder="Gimnasio / Cliente" class="w-full bg-slate-50 p-4 rounded-2xl outline-none border border-slate-100 focus:border-blue-500 transition-all">
         </section>
 
-        <!-- Labores -->
-        <section class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200">
-            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2">Trabajo Realizado</label>
-            <textarea id="desc" rows="4" placeholder="Detalla las labores realizadas..." class="w-full bg-slate-50 p-4 rounded-xl outline-none border border-slate-100 focus:border-blue-500"></textarea>
+        <!-- Cardio: 5 Máquinas -->
+        <section class="space-y-4">
+            <h2 class="text-[10px] font-black text-blue-600 uppercase tracking-widest ml-4 flex items-center gap-2">
+                <i data-lucide="heart-pulse" class="w-3.5 h-3.5"></i> Categoría de Cardio
+            </h2>
+            <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-200 overflow-hidden divide-y divide-slate-50">
+                <div class="p-5 flex items-center justify-between">
+                    <span class="font-bold text-slate-700">Caminadoras</span>
+                    <input type="number" id="c-cam" placeholder="0" class="w-16 h-12 bg-slate-50 rounded-xl text-center font-black outline-none">
+                </div>
+                <div class="p-5 flex items-center justify-between">
+                    <span class="font-bold text-slate-700">Bicicletas</span>
+                    <input type="number" id="c-bic" placeholder="0" class="w-16 h-12 bg-slate-50 rounded-xl text-center font-black outline-none">
+                </div>
+                <div class="p-5 flex items-center justify-between">
+                    <span class="font-bold text-slate-700">Elípticas</span>
+                    <input type="number" id="c-eli" placeholder="0" class="w-16 h-12 bg-slate-50 rounded-xl text-center font-black outline-none">
+                </div>
+                <div class="p-5 flex items-center justify-between">
+                    <span class="font-bold text-slate-700">Remos</span>
+                    <input type="number" id="c-rem" placeholder="0" class="w-16 h-12 bg-slate-50 rounded-xl text-center font-black outline-none">
+                </div>
+                <div class="p-5 flex items-center justify-between">
+                    <span class="font-bold text-slate-700">Escaladoras</span>
+                    <input type="number" id="c-esc" placeholder="0" class="w-16 h-12 bg-slate-50 rounded-xl text-center font-black outline-none">
+                </div>
+            </div>
+        </section>
+
+        <!-- Fuerza y Peso Libre -->
+        <section class="grid grid-cols-2 gap-4">
+            <div class="bg-[#1a2e5a] text-white p-6 rounded-[2.5rem] shadow-xl flex flex-col items-center gap-3">
+                <i data-lucide="dumbbell" class="w-8 h-8 text-blue-300"></i>
+                <span class="text-[10px] font-bold uppercase opacity-60 text-center">Área Fuerza</span>
+                <input type="number" id="qty-fuerza" placeholder="0" class="w-full bg-white/10 p-3 rounded-2xl text-center text-white font-black outline-none">
+            </div>
+            <div class="bg-orange-500 text-white p-6 rounded-[2.5rem] shadow-xl flex flex-col items-center gap-3">
+                <i data-lucide="weight" class="w-8 h-8 text-orange-200"></i>
+                <span class="text-[10px] font-bold uppercase opacity-60 text-center">Peso Libre</span>
+                <input type="number" id="qty-peso" placeholder="0" class="w-full bg-white/10 p-3 rounded-2xl text-center text-white font-black outline-none">
+            </div>
+        </section>
+
+        <!-- Espacio para Comentarios -->
+        <section class="space-y-3">
+            <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 flex items-center gap-2">
+                <i data-lucide="message-square" class="w-3.5 h-3.5"></i> Comentarios y Observaciones
+            </h2>
+            <div class="fitu-card p-4">
+                <textarea id="comments" rows="4" placeholder="Escribe aquí detalles sobre fallas encontradas, repuestos necesarios o recomendaciones generales..." class="w-full bg-slate-50 p-4 rounded-2xl outline-none border border-slate-100 focus:border-blue-500 transition-all text-sm leading-relaxed"></textarea>
+            </div>
+        </section>
+
+        <!-- Fotos -->
+        <section class="space-y-3">
+            <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 flex items-center gap-2">
+                <i data-lucide="image" class="w-3.5 h-3.5"></i> Evidencia
+            </h2>
+            <div class="fitu-card">
+                <div id="photo-grid" class="grid grid-cols-2 gap-3 mb-4"></div>
+                <label class="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-slate-200 rounded-3xl cursor-pointer hover:bg-slate-50 transition-all">
+                    <i data-lucide="camera" class="w-6 h-6 text-slate-300 mb-1"></i>
+                    <span class="text-xs font-bold text-slate-400">Tomar Foto</span>
+                    <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden" onchange="handlePhoto(event)" />
+                </label>
+            </div>
         </section>
 
         <!-- Firma -->
-        <section class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200 text-center">
-            <div class="flex justify-between items-center mb-2">
-                <label class="text-[10px] font-bold text-slate-400 uppercase">Firma del Cliente</label>
-                <button onclick="clearPad()" class="text-[10px] text-red-400 font-bold uppercase">Limpiar</button>
+        <section class="space-y-3 pb-10">
+            <div class="flex justify-between px-4">
+                <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                    <i data-lucide="pen-tool" class="w-3.5 h-3.5"></i> Firma Cliente
+                </h2>
+                <button onclick="clearSignature()" class="text-[10px] font-bold text-red-500 uppercase">Borrar</button>
             </div>
-            <canvas id="signature-pad" class="w-full h-40 rounded-2xl border-2 border-dashed border-slate-200"></canvas>
-            <input type="text" id="signer" placeholder="Nombre de quien recibe" class="w-full mt-3 bg-slate-50 p-4 rounded-xl outline-none border border-slate-100 focus:border-blue-500 text-center">
-        </section>
-
-        <!-- Correo Cliente -->
-        <section class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200">
-            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2">Enviar copia al Cliente</label>
-            <input type="email" id="c-email" placeholder="correo@cliente.com" class="w-full bg-slate-50 p-4 rounded-xl outline-none border border-slate-100 focus:border-blue-500">
+            <div class="bg-white p-2 rounded-[2.5rem] border border-slate-200 overflow-hidden">
+                <canvas id="signature-pad" class="w-full h-40"></canvas>
+            </div>
         </section>
 
     </main>
 
-    <!-- Botón de Envío -->
-    <div class="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-slate-100">
-        <button onclick="sendReport()" class="w-full bg-blue-600 text-white font-black py-5 rounded-2xl shadow-xl active:bg-blue-700 transition-colors">
-            FINALIZAR Y ENVIAR
-        </button>
+    <!-- Botón Guardar -->
+    <div class="fixed bottom-0 left-0 right-0 p-5 bg-white/80 backdrop-blur-md border-t border-slate-100 z-50">
+        <div class="max-w-md mx-auto">
+            <button onclick="handleSave()" id="save-btn" class="w-full bg-[#1a2e5a] text-white py-5 rounded-[2rem] font-black text-lg shadow-2xl flex items-center justify-center gap-3 active:scale-95 transition-all">
+                <i data-lucide="save"></i>
+                <span>FINALIZAR REPORTE</span>
+            </button>
+        </div>
     </div>
 
     <script>
+        // Initialize Icons
+        lucide.createIcons();
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString();
+
+        // Photo Handling
+        let photos = [];
+        function handlePhoto(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const id = Date.now();
+                    photos.push({ id, src: e.target.result });
+                    renderPhotos();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function renderPhotos() {
+            const grid = document.getElementById('photo-grid');
+            grid.innerHTML = photos.map(p => `
+                <div class="relative">
+                    <img src="${p.src}" class="photo-preview w-full" alt="Evidencia">
+                    <button onclick="removePhoto(${p.id})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 shadow-lg">
+                        <i data-lucide="x" class="w-3 h-3"></i>
+                    </button>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function removePhoto(id) {
+            photos = photos.filter(p => p.id !== id);
+            renderPhotos();
+        }
+
+        // Signature Logic
         const canvas = document.getElementById('signature-pad');
         const ctx = canvas.getContext('2d');
         let drawing = false;
 
-        function resize() {
+        function initCanvas() {
             canvas.width = canvas.offsetWidth;
             canvas.height = canvas.offsetHeight;
             ctx.lineWidth = 3;
             ctx.lineCap = 'round';
-            ctx.strokeStyle = '#1e3a8a';
+            ctx.strokeStyle = '#1a2e5a';
         }
-        window.onresize = resize;
-        resize();
+
+        window.onload = initCanvas;
+        window.onresize = initCanvas;
 
         const getPos = (e) => {
-            const r = canvas.getBoundingClientRect();
-            return {
-                x: (e.touches ? e.touches[0].clientX : e.clientX) - r.left,
-                y: (e.touches ? e.touches[0].clientY : e.clientY) - r.top
-            };
+            const rect = canvas.getBoundingClientRect();
+            const cx = e.touches ? e.touches[0].clientX : e.clientX;
+            const cy = e.touches ? e.touches[0].clientY : e.clientY;
+            return { x: cx - rect.left, y: cy - rect.top };
         };
 
-        canvas.addEventListener('touchstart', (e) => { drawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); e.preventDefault(); });
-        canvas.addEventListener('touchmove', (e) => { if(!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); });
-        window.addEventListener('touchend', () => drawing = false);
+        const start = (e) => { drawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); };
+        const move = (e) => { if(!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); if(e.touches) e.preventDefault(); };
+        const stop = () => drawing = false;
 
-        function clearPad() { ctx.clearRect(0,0,canvas.width,canvas.height); }
+        canvas.addEventListener('mousedown', start);
+        canvas.addEventListener('mousemove', move);
+        window.addEventListener('mouseup', stop);
+        canvas.addEventListener('touchstart', start);
+        canvas.addEventListener('touchmove', move);
+        window.addEventListener('touchend', stop);
 
-        function sendReport() {
+        function clearSignature() { ctx.clearRect(0,0,canvas.width,canvas.height); }
+
+        // Save Logic
+        function handleSave() {
             const tech = document.getElementById('tech').value;
             const client = document.getElementById('client').value;
-            const desc = document.getElementById('desc').value;
-            const cEmail = document.getElementById('c-email').value;
-            const signer = document.getElementById('signer').value;
+            const comments = document.getElementById('comments').value;
 
-            if(!tech || !client || !cEmail) {
-                alert("Complete los campos obligatorios");
+            if(!tech || !client) {
+                alert("Por favor completa los datos de Técnico y Gimnasio.");
                 return;
             }
 
-            const subject = encodeURIComponent(`Reporte de Servicio FITU - ${client}`);
-            const adminEmail = "servicioscr@fitu.fit";
-            
-            const body = encodeURIComponent(
-                `REPORTE DE SERVICIO FITU\n` +
-                `--------------------------\n` +
-                `Técnico: ${tech}\n` +
-                `Cliente: ${client}\n` +
-                `Fecha: ${new Date().toLocaleDateString()}\n\n` +
-                `LABORES REALIZADAS:\n${desc}\n\n` +
-                `RECIBIDO POR: ${signer}\n` +
-                `--------------------------\n` +
-                `Este es un comprobante digital de FITU.`
-            );
+            const btn = document.getElementById('save-btn');
+            btn.innerHTML = '<span>PROCESANDO...</span>';
+            btn.disabled = true;
 
-            // Esto abre la aplicación de correo del celular con los datos listos
-            window.location.href = `mailto:${cEmail}?cc=${adminEmail}&subject=${subject}&body=${body}`;
+            setTimeout(() => {
+                document.getElementById('modal-success').style.display = 'flex';
+                btn.innerHTML = '<span>FINALIZADO</span>';
+                
+                // Mail logic
+                const subject = encodeURIComponent(`Reporte Mantenimiento FITU - ${client}`);
+                const body = encodeURIComponent(
+                    `Reporte de Servicio Técnico\n` +
+                    `-----------------------------------\n` +
+                    `Técnico: ${tech}\n` +
+                    `Gimnasio: ${client}\n` +
+                    `Fecha: ${new Date().toLocaleDateString()}\n\n` +
+                    `OBSERVACIONES:\n${comments || 'Sin comentarios adicionales.'}\n\n` +
+                    `Fotos adjuntas: ${photos.length}`
+                );
+                window.location.href = `mailto:servicioscr@fitu.fit?subject=${subject}&body=${body}`;
+            }, 1000);
+        }
+
+        function closeModal() {
+            document.getElementById('modal-success').style.display = 'none';
         }
     </script>
 </body>
